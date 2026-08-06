@@ -30,24 +30,14 @@
             overflow: hidden;
             background-color: #fcfcf9;
             font-family: 'Prompt', sans-serif;
-        }
-
-        #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #fcfcf9;
-            color: #aa8b2c;
-            z-index: 9999;
-            transition: opacity 0.4s ease;
         }
 
-        .loader-wrapper { text-align: center; }
+        .loader-wrapper { 
+            text-align: center; 
+        }
 
         .spinner {
             width: 42px;
@@ -64,114 +54,23 @@
             100% { transform: rotate(360deg); }
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
+        p {
+            color: #aa8b2c;
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-wrapper">
-            <div class="spinner"></div>
-            <p style="font-size: 14px; font-weight: 500;">กำลังเข้าสู่ระบบ SATAPON CENTER...</p>
-        </div>
+    <div class="loader-wrapper">
+        <div class="spinner"></div>
+        <p>กำลังเชื่อมต่อระบบ SATAPON CENTER...</p>
     </div>
 
-    <iframe 
-        id="appFrame" 
-        src="https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec" 
-        allow="geolocation *; camera *; microphone *; autoplay *;"
-        onload="hideLoader()">
-    </iframe>
-
     <script>
-        function hideLoader() {
-            var loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(function() {
-                    loader.style.display = 'none';
-                }, 400);
-            }
-        }
-
-        // ระบบดึง GPS ที่ระดับ Top Window (GitHub) แล้วรับ-ส่งคำขอกับ iframe อัตโนมัติ
-        window.addEventListener("message", function(event) {
-            if (event.data && event.data.type === "REQUEST_GPS") {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            var iframe = document.getElementById("appFrame");
-                            iframe.contentWindow.postMessage({
-                                type: "GPS_RESPONSE",
-                                success: true,
-                                coords: {
-                                    latitude: position.coords.latitude,
-                                    longitude: position.coords.longitude,
-                                    accuracy: position.coords.accuracy
-                                }
-                            }, "*");
-                        },
-                        function(error) {
-                            var iframe = document.getElementById("appFrame");
-                            iframe.contentWindow.postMessage({
-                                type: "GPS_RESPONSE",
-                                success: false,
-                                error: error.message
-                            }, "*");
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
-                } else {
-                    var iframe = document.getElementById("appFrame");
-                    iframe.contentWindow.postMessage({
-                        type: "GPS_RESPONSE",
-                        success: false,
-                        error: "อุปกรณ์ไม่รองรับ GPS"
-                    }, "*");
-                }
-            }
-        });
-
-        // ฉีดสคริปต์เข้า iframe เพื่อดักจับการเรียก navigator.geolocation.getCurrentPosition ให้มาใช้ GPS ของ GitHub แทน
-        var iframe = document.getElementById("appFrame");
-        iframe.addEventListener("load", function() {
-            try {
-                var script = document.createElement("script");
-                script.textContent = `
-                    (function() {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition = function(successCallback, errorCallback, options) {
-                                function handleGPSMessage(event) {
-                                    if (event.data && event.data.type === "GPS_RESPONSE") {
-                                        window.removeEventListener("message", handleGPSMessage);
-                                        if (event.data.success) {
-                                            successCallback({
-                                                coords: event.data.coords,
-                                                timestamp: Date.now()
-                                            });
-                                        } else {
-                                            if (errorCallback) {
-                                                errorCallback({ message: event.data.error || "ไม่สามารถระบุตำแหน่งได้" });
-                                            }
-                                        }
-                                    }
-                                }
-                                window.addEventListener("message", handleGPSMessage);
-                                window.parent.postMessage({ type: "REQUEST_GPS" }, "*");
-                            };
-                        }
-                    })();
-                `;
-                iframe.contentWindow.document.head.appendChild(script);
-            } catch(e) {
-                // กรณีเบราว์เซอร์บล็อก Cross-Origin Script Injection
-            }
-        });
+        // เปลี่ยนหน้าตรงไปยัง Google Apps Script เพื่อให้ใช้สิทธิ์ GPS และ กล้องถ่ายรูป ได้ 100%
+        window.location.href = "https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec";
     </script>
 </body>
 </html>
