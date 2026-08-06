@@ -81,21 +81,14 @@
         </div>
     </div>
 
-    <!-- กำหนดสิทธิ์ให้ครอบคลุมทุก origin และรวม sandbox ไว้เพื่อปลดล็อกระบบ -->
     <iframe 
         id="appFrame" 
         src="https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec" 
-        allow="geolocation *; camera *; microphone *;"
-        sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation"
+        allow="geolocation *; camera *; microphone *; autoplay *;"
         onload="hideLoader()">
     </iframe>
 
     <script>
-        // กระตุ้นการขอสิทธิ์ GPS ที่ระดับตัวแม่ (GitHub) ทันทีที่เปิดเว็บ
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function() {}, function() {}, { enableHighAccuracy: true });
-        }
-
         function hideLoader() {
             var loader = document.getElementById('loader');
             if (loader) {
@@ -105,6 +98,80 @@
                 }, 400);
             }
         }
+
+        // ระบบดึง GPS ที่ระดับ Top Window (GitHub) แล้วรับ-ส่งคำขอกับ iframe อัตโนมัติ
+        window.addEventListener("message", function(event) {
+            if (event.data && event.data.type === "REQUEST_GPS") {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            var iframe = document.getElementById("appFrame");
+                            iframe.contentWindow.postMessage({
+                                type: "GPS_RESPONSE",
+                                success: true,
+                                coords: {
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude,
+                                    accuracy: position.coords.accuracy
+                                }
+                            }, "*");
+                        },
+                        function(error) {
+                            var iframe = document.getElementById("appFrame");
+                            iframe.contentWindow.postMessage({
+                                type: "GPS_RESPONSE",
+                                success: false,
+                                error: error.message
+                            }, "*");
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                } else {
+                    var iframe = document.getElementById("appFrame");
+                    iframe.contentWindow.postMessage({
+                        type: "GPS_RESPONSE",
+                        success: false,
+                        error: "อุปกรณ์ไม่รองรับ GPS"
+                    }, "*");
+                }
+            }
+        });
+
+        // ฉีดสคริปต์เข้า iframe เพื่อดักจับการเรียก navigator.geolocation.getCurrentPosition ให้มาใช้ GPS ของ GitHub แทน
+        var iframe = document.getElementById("appFrame");
+        iframe.addEventListener("load", function() {
+            try {
+                var script = document.createElement("script");
+                script.textContent = `
+                    (function() {
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition = function(successCallback, errorCallback, options) {
+                                function handleGPSMessage(event) {
+                                    if (event.data && event.data.type === "GPS_RESPONSE") {
+                                        window.removeEventListener("message", handleGPSMessage);
+                                        if (event.data.success) {
+                                            successCallback({
+                                                coords: event.data.coords,
+                                                timestamp: Date.now()
+                                            });
+                                        } else {
+                                            if (errorCallback) {
+                                                errorCallback({ message: event.data.error || "ไม่สามารถระบุตำแหน่งได้" });
+                                            }
+                                        }
+                                    }
+                                }
+                                window.addEventListener("message", handleGPSMessage);
+                                window.parent.postMessage({ type: "REQUEST_GPS" }, "*");
+                            };
+                        }
+                    })();
+                `;
+                iframe.contentWindow.document.head.appendChild(script);
+            } catch(e) {
+                // กรณีเบราว์เซอร์บล็อก Cross-Origin Script Injection
+            }
+        });
     </script>
 </body>
 </html>
