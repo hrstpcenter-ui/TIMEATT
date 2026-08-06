@@ -1,69 +1,106 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SATAPON CENTER</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SATAPON CENTER</title>
 
-    <!-- 1. ICON SETTINGS (Favicon & Apple Touch Icon) -->
-    <!-- ลิงก์รูปโลโก้ที่คุณให้มา จะถูกนำมาใช้เป็นไอคอนหลักของระบบ -->
-    <link rel="icon" type="image/png" sizes="192x192" href="https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png">
-    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png">
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png">
 
-    <!-- 2. PWA & MOBILE APP SETTINGS -->
-    <!-- ตั้งค่าให้เวลาเซฟลงมือถือแล้วดูเหมือนแอปจริง (Standalone) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="STP-CENTER">
-    <meta name="theme-color" content="#aa8b2c">
+    <!-- Mobile Web App Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="STP-CENTER">
+    <meta name="theme-color" content="#aa8b2c">
 
-    <!-- 3. WEB MANIFEST -->
-    <!-- ช่วยให้ Android ตรวจสอบโลโก้และชื่อแอปได้ถูกต้อง -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"SATAPON CENTER","short_name":"STP-CENTER","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#aa8b2c","icons":[{"src":"https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png","sizes":"192x192","type":"image/png"}]}' >
+    <!-- Manifest -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"SATAPON CENTER","short_name":"STP-CENTER","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#aa8b2c","icons":[{"src":"https://res.cloudinary.com/dzjxevid7/image/upload/v1776492664/Gemini_Generated_Image_mzaktwmzaktwmzak-1_1_el4wqy.png","sizes":"192x192","type":"image/png"}]}' >
 
-    <!-- 4. EXTERNAL RESOURCES -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            font-family: 'Prompt', sans-serif;
-            background-color: #ffffff;
-        }
-        /* ปรับแต่ง iframe ให้เต็มหน้าจอและลื่นไหล */
-        iframe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            z-index: 999999;
-        }
-    </style>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #fcfcf9;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fcfcf9;
+            color: #aa8b2c;
+            z-index: 9999;
+            transition: opacity 0.4s ease;
+        }
+
+        .loader-wrapper {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #aa8b2c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
-<iframe 
-    src="https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec"
-    allow="storage-access; clipboard-read; clipboard-write" 
-    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-    style="width:100%; height:100%; border:none;">
-</iframe>
+    <div id="loader">
+        <div class="loader-wrapper">
+            <div class="spinner"></div>
+            <p style="font-size: 14px; font-weight: 500;">กำลังเข้าสู่ระบบ SATAPON CENTER...</p>
+        </div>
+    </div>
 
+    <!-- 📌 เพิ่ม allow="geolocation; camera; microphone;" เพื่อเปิดสิทธิ์ GPS และ กล้องถ่ายรูป -->
+    <iframe 
+        id="appFrame" 
+        src="https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec" 
+        allow="geolocation; camera; microphone;"
+        onload="hideLoader()">
+    </iframe>
+
+    <script>
+        function hideLoader() {
+            var loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(function() {
+                    loader.style.display = 'none';
+                }, 400);
+            }
+        }
+    </script>
 </body>
 </html>
