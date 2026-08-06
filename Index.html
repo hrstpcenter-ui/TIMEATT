@@ -47,9 +47,7 @@
             transition: opacity 0.4s ease;
         }
 
-        .loader-wrapper {
-            text-align: center;
-        }
+        .loader-wrapper { text-align: center; }
 
         .spinner {
             width: 42px;
@@ -83,11 +81,11 @@
         </div>
     </div>
 
-    <!-- 📌 เพิ่ม allow="geolocation; camera; microphone;" เพื่อเปิดสิทธิ์ GPS และ กล้องถ่ายรูป -->
+    <!-- 📌 ปลดล็อกสิทธิ์ GPS และ กล้อง แบบระบุโดเมนตรงไปยัง Google Apps Script -->
     <iframe 
         id="appFrame" 
         src="https://script.google.com/macros/s/AKfycbxbfeQdBJcl3LDSUD4y19xWRX_8PRXspEFwz4QKdasXtrz4-A8CaxfOc9Fm1Gl49y7yXQ/exec" 
-        allow="geolocation; camera; microphone;"
+        allow="geolocation https://script.google.com https://script.googleusercontent.com; camera https://script.google.com https://script.googleusercontent.com;"
         onload="hideLoader()">
     </iframe>
 
